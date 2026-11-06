@@ -26,3 +26,6 @@ database/data/processed/*
 !database/data/inbox/manuals/
 !database/data/inbox/sales/
 !database/data/inbox/**/.gitkeep
+
+# 개발 문서는 로컬에만 보관
+/docs/
