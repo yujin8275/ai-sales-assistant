@@ -1,0 +1,60 @@
+# ABC Electronics - 로컬 팀 공통 Docker Compose
+# 실행: docker compose up -d --build app
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    container_name: ai_sales_db
+
+    environment:
+      POSTGRES_DB: ai_sales
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+    restart: unless-stopped
+
+    # app 컨테이너가 DB 준비 완료 후 시작되도록 확인
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      dockerfile: deploy/admin/Dockerfile
+    container_name: ai_sales_app
+
+    # 기존 .env의 DB 비밀번호와 Ollama 모델명을 컨테이너에 전달
+    env_file:
+      - .env
+
+    # 컨테이너 내부 주소만 덮어쓰기; .env 파일은 수정하지 않음
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      OLLAMA_URL: "http://host.docker.internal:11434"
+      PYTHONUNBUFFERED: "1"
+
+    ports:
+      - "127.0.0.1:8501:8501"
+
+    # inbox/archive/processed 파일을 Windows 로컬 폴더와 공유
+    volumes:
+      - ./database/data:/app/database/data
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

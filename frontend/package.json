@@ -1,0 +1,21 @@
+{
+  "name": "abc-electronics-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "dev": "vite --host 0.0.0.0",
+    "test": "tsc src/api.ts --outDir .test-build --module ESNext --target ES2022 --moduleResolution bundler --skipLibCheck && node --test tests/api.test.mjs"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.2",
+    "@types/react-dom": "19.1.2",
+    "typescript": "5.8.3",
+    "vite": "^6.4.5"
+  }
+}

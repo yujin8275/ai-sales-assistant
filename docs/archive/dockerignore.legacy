@@ -1,0 +1,20 @@
+# Docker 이미지에 비밀번호, 원본 파일, 캐시를 포함하지 않음
+.env
+.env.*
+!.env.example
+.git/
+.venv/
+venv/
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.idea/
+.vscode/
+
+# 업로드 문서는 이미지에 넣지 않고 docker-compose 볼륨으로 연결
+# 이 경로에 있는 PDF/Excel/처리이력은 Windows PC에 그대로 남음
+database/data/
+
+# 로컬 개발/보관 파일
+tests/
+*.zip

@@ -1,0 +1,51 @@
+# Docker만으로 실행하는 신규 환경용. 기존 .env/DB는 유지한다.
+services:
+  db-init:
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./deploy/seed:/seed:ro
+    command: ["psql", "-h", "db", "-U", "ai_user", "-d", "ai_sales", "-v", "ON_ERROR_STOP=1", "--single-transaction", "-f", "/seed/bootstrap.psql"]
+    depends_on:
+      db:
+        condition: service_healthy
+  ollama:
+    image: ollama/ollama:0.13.0
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+  model-init:
+    image: ollama/ollama:0.13.0
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["ollama pull qwen3-embedding:0.6b && ollama pull qwen3:8b"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+  app:
+    environment:
+      OLLAMA_URL: http://ollama:11434
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      model-init:
+        condition: service_completed_successfully
+  backend:
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      CHAT_MODEL: qwen3:8b
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      model-init:
+        condition: service_completed_successfully
+volumes:
+  ollama_data:
+

@@ -1,0 +1,29 @@
+# 기존 compose.yaml에 더해서 실행한다. 기존 DB 볼륨/관리 화면은 그대로 사용한다.
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      CHAT_MODEL: ${CHAT_MODEL:-qwen3:8b}
+      OLLAMA_URL: "http://host.docker.internal:11434"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./database/data/product_images:/app/product_images:ro
+  web:
+    build:
+      context: ./frontend
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+

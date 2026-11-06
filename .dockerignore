@@ -1,0 +1,13 @@
+.env
+.git
+**/__pycache__
+**/.pytest_cache
+frontend/node_modules
+frontend/.test-build
+frontend/dist
+database/data
+deploy/seed
+
+.env.*
+.idea/
+.vscode/

@@ -1,0 +1,9 @@
+\set ON_ERROR_STOP on
+SELECT to_regclass('public.products') IS NOT NULL AS has_products \gset
+\if :has_products
+  \echo '기존 상품 DB 유지: 초기 데이터 적재를 건너뜁니다.'
+\else
+  \ir schema.sql
+  \ir data.sql
+  \echo '상품·SKU·가격·재고·벡터 초기 데이터 적재 완료.'
+\endif
